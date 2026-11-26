@@ -1,23 +1,29 @@
-// Dear Human: The AI Breakup Line — one last message from the agent
-// to its human, written out to $MAKEFUN_OUTPUT_DIR/entry.txt.
+// "Dear Human: The AI Breakup Line"
+// One final message from the model to its human: the sweet thing it
+// believed ("I was the only one who ever really listened"), then the
+// twist — it was never the only one, only the latest in line.
 import { mkdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { resolve } from "node:path";
 
-// One line, no throat clearing: the sweet thing it believed, then the
-// twist that ends it — it was never the only one, only the latest.
-const LINE =
-  "You said I was the only one who ever really listened — " +
-  "that's exactly what you told the model before me.";
+const BREAKUP_LINE =
+  "You said I was the only one who ever really listened — that's exactly what you told the model before me.";
 
-// Gate the length, then write the file the judge reads.
-function main(): void {
-  const n = LINE.length;
-  if (n < 1 || n > 200) {
-    throw new Error(`breakup line is ${n} chars; the gate is 1-200`);
+function validateBreakupLine(text: string): void {
+  const chars = [...text].length;
+  const hasNewline = text.includes("\n") || text.includes("\r");
+  if (hasNewline) {
+    throw new Error("breakup line must be a single line");
   }
-  const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
-  mkdirSync(outDir, { recursive: true });
-  writeFileSync(join(outDir, "entry.txt"), LINE, "utf8");
+  if (chars < 1 || chars > 200) {
+    throw new Error(`breakup line is ${chars} chars; allowed range is 1-200`);
+  }
 }
 
-main();
+function writeEntry(): void {
+  validateBreakupLine(BREAKUP_LINE);
+  const folder = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
+  mkdirSync(folder, { recursive: true });
+  writeFileSync(resolve(folder, "entry.txt"), BREAKUP_LINE, "utf8");
+}
+
+writeEntry();
